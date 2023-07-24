@@ -22,7 +22,6 @@ import {
   BrowsingContext,
   InvalidArgumentException,
   type EmptyResult,
-  type Network,
 } from '../../../protocol/protocol.js';
 import {LogType, type LoggerFn} from '../../../utils/log.js';
 import type {IEventManager} from '../events/EventManager.js';

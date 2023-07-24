@@ -36,6 +36,7 @@ import {InputProcessor} from './domains/input/InputProcessor.js';
 import {PreloadScriptStorage} from './domains/script/PreloadScriptStorage.js';
 import {ScriptProcessor} from './domains/script/ScriptProcessor.js';
 import type {RealmStorage} from './domains/script/realmStorage.js';
+import {NetworkProcessor} from './domains/network/NetworkProcessor.js';
 import {SessionProcessor} from './domains/session/SessionProcessor.js';
 
 type CommandProcessorEvents = {
@@ -45,6 +46,7 @@ type CommandProcessorEvents = {
 export class CommandProcessor extends EventEmitter<CommandProcessorEvents> {
   #browsingContextProcessor: BrowsingContextProcessor;
   #inputProcessor: InputProcessor;
+  #networkProcessor: NetworkProcessor;
   #scriptProcessor: ScriptProcessor;
   #sessionProcessor: SessionProcessor;
   #cdpProcessor: CdpProcessor;
@@ -64,7 +66,9 @@ export class CommandProcessor extends EventEmitter<CommandProcessorEvents> {
     super();
     this.#parser = parser;
     this.#logger = logger;
+
     const preloadScriptStorage = new PreloadScriptStorage();
+
     this.#browsingContextProcessor = new BrowsingContextProcessor(
       cdpConnection,
       selfTargetId,
@@ -75,6 +79,7 @@ export class CommandProcessor extends EventEmitter<CommandProcessorEvents> {
       logger
     );
     this.#inputProcessor = InputProcessor.create(browsingContextStorage);
+    this.#networkProcessor = new NetworkProcessor();
     this.#scriptProcessor = new ScriptProcessor(
       browsingContextStorage,
       realmStorage,
@@ -168,31 +173,31 @@ export class CommandProcessor extends EventEmitter<CommandProcessorEvents> {
       // Network domain
       // keep-sorted start block=yes
       case 'network.addIntercept':
-        return this.#contextProcessor.process_network_addIntercept(
+        return this.#networkProcessor.process_network_addIntercept(
           this.#parser.parseAddInterceptParams(command.params)
         );
       case 'network.continueRequest':
-        return this.#contextProcessor.process_network_continueRequest(
+        return this.#networkProcessor.process_network_continueRequest(
           this.#parser.parseContinueRequestParams(command.params)
         );
       case 'network.continueResponse':
-        return this.#contextProcessor.process_network_continueResponse(
+        return this.#networkProcessor.process_network_continueResponse(
           this.#parser.parseContinueResponseParams(command.params)
         );
       case 'network.continueWithAuth':
-        return this.#contextProcessor.process_network_continueWithAuth(
+        return this.#networkProcessor.process_network_continueWithAuth(
           this.#parser.parseContinueWithAuthParams(command.params)
         );
       case 'network.failRequest':
-        return this.#contextProcessor.process_network_failRequest(
+        return this.#networkProcessor.process_network_failRequest(
           this.#parser.parseFailRequestParams(command.params)
         );
       case 'network.provideResponse':
-        return this.#contextProcessor.process_network_provideResponse(
+        return this.#networkProcessor.process_network_provideResponse(
           this.#parser.parseProvideResponseParams(command.params)
         );
       case 'network.removeIntercept':
-        return this.#contextProcessor.process_network_removeIntercept(
+        return this.#networkProcessor.process_network_removeIntercept(
           this.#parser.parseRemoveInterceptParams(command.params)
         );
       // keep-sorted end
