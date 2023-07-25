@@ -26,6 +26,7 @@ import {NetworkManager} from '../network/NetworkManager.js';
 import type {ChannelProxy} from '../script/channelProxy.js';
 import type {RealmStorage} from '../script/realmStorage.js';
 import type {PreloadScriptStorage} from '../script/PreloadScriptStorage.js';
+import type {NetworkStorage} from '../network/NetworkStorage.js';
 
 export class CdpTarget {
   readonly #targetId: Protocol.Target.TargetID;
@@ -42,7 +43,8 @@ export class CdpTarget {
     cdpSessionId: Protocol.Target.SessionID,
     realmStorage: RealmStorage,
     eventManager: IEventManager,
-    preloadScriptStorage: PreloadScriptStorage
+    preloadScriptStorage: PreloadScriptStorage,
+    networkStorage: NetworkStorage
   ): CdpTarget {
     const cdpTarget = new CdpTarget(
       targetId,
@@ -53,7 +55,7 @@ export class CdpTarget {
     );
 
     LogManager.create(cdpTarget, realmStorage, eventManager);
-    NetworkManager.create(cdpClient, eventManager);
+    NetworkManager.create(cdpClient, networkStorage);
 
     cdpTarget.#setEventListeners();
 
