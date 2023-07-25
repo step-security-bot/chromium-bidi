@@ -47,7 +47,7 @@ export class NetworkManager {
         'Target.detachedFromTarget',
         (params: Protocol.Target.DetachedFromTargetEvent) => {
           if (cdpClient.sessionId === params.sessionId) {
-            networkManager.dispose();
+            networkManager.#networkStorage.disposeRequestMap();
           }
         }
       );
@@ -115,14 +115,6 @@ export class NetworkManager {
     );
 
     return networkManager;
-  }
-
-  dispose() {
-    for (const request of this.#networkStorage.requestMap.values()) {
-      request.dispose();
-    }
-
-    this.#networkStorage.requestMap.clear();
   }
 
   #forgetRequest(requestId: Network.Request): void {
