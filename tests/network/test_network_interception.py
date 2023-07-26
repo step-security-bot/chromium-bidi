@@ -14,22 +14,22 @@
 #  limitations under the License.
 #
 import pytest
-from test_helpers import send_JSON_command
+from test_helpers import execute_command
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="TODO: Implement test")
-async def test_add_intercept(websocket):
-    await send_JSON_command(
-        websocket, {
-            "method": "network.addIntercept",
-            "params": {
-                "phases": ["beforeRequestSent"],
-                "urlPatterns": [{
-                    "type": "string",
-                    "pattern": "https://www.example.com/*"
-                }],
-            },
-        })
+async def test_add_intercept_invalid_empty_phases(websocket):
+    with pytest.raises(Exception) as exception_info:
+        await execute_command(
+            websocket, {
+                "method": "network.addIntercept",
+                "params": {
+                    "phases": [],
+                    "urlPatterns": ["https://www.example.com/*"],
+                },
+            })
 
-    # TODO: Expand.
+    assert {
+        "error": "invalid argument",
+        "message": "At least one phase must be specified."
+    } == exception_info.value.args[0]
