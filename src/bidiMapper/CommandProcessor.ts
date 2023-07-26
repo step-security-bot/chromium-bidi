@@ -89,7 +89,10 @@ export class CommandProcessor extends EventEmitter<CommandProcessorEvents> {
       cdpConnection
     );
     this.#inputProcessor = InputProcessor.create(browsingContextStorage);
-    this.#networkProcessor = new NetworkProcessor(networkStorage);
+    this.#networkProcessor = new NetworkProcessor(
+      networkStorage,
+      cdpConnection.browserClient()
+    );
     this.#scriptProcessor = new ScriptProcessor(
       browsingContextStorage,
       realmStorage,
