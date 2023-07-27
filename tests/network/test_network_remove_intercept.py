@@ -15,9 +15,28 @@
 import pytest
 from test_helpers import execute_command
 
+# TODO: add basic test_remove_intercept test, check events.
+
 
 @pytest.mark.asyncio
-async def test_remove_intercept(websocket):
+async def test_remove_intercept_no_such_intercept(websocket):
+    with pytest.raises(Exception) as exception_info:
+        await execute_command(
+            websocket, {
+                "method": "network.removeIntercept",
+                "params": {
+                    "intercept": "00000000-0000-0000-0000-000000000000",
+                },
+            })
+
+    assert {
+        "error": "no such intercept",
+        "message": "Intercept '00000000-0000-0000-0000-000000000000' does not exist."
+    } == exception_info.value.args[0]
+
+
+@pytest.mark.asyncio
+async def test_remove_intercept_twice(websocket):
     result = await execute_command(
         websocket, {
             "method": "network.addIntercept",
@@ -37,19 +56,17 @@ async def test_remove_intercept(websocket):
         })
     assert result == {}
 
-
-@pytest.mark.asyncio
-async def test_remove_intercept_no_such_intercept(websocket):
+    # Check that the intercept is gone.
     with pytest.raises(Exception) as exception_info:
         await execute_command(
             websocket, {
                 "method": "network.removeIntercept",
                 "params": {
-                    "intercept": "00000000-0000-0000-0000-000000000000",
+                    "intercept": intercept_id,
                 },
             })
 
     assert {
         "error": "no such intercept",
-        "message": "Intercept '00000000-0000-0000-0000-000000000000' does not exist."
+        "message": f"Intercept {intercept_id} does not exist."
     } == exception_info.value.args[0]
