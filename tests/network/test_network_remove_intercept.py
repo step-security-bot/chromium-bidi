@@ -13,38 +13,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import pytest
-from test_helpers import ANY_UUID, execute_command
+from test_helpers import execute_command
 
 
 @pytest.mark.asyncio
-async def test_add_intercept_invalid_empty_phases(websocket):
+async def test_remove_intercept_no_such_intercept(websocket):
     with pytest.raises(Exception) as exception_info:
         await execute_command(
             websocket, {
-                "method": "network.addIntercept",
+                "method": "network.removeIntercept",
                 "params": {
-                    "phases": [],
-                    "urlPatterns": ["https://www.example.com/*"],
+                    "intercept": "00000000-0000-0000-0000-000000000000",
                 },
             })
 
     assert {
-        "error": "invalid argument",
-        "message": "At least one phase must be specified."
+        "error": "no such intercept",
+        "message": "Intercept '00000000-0000-0000-0000-000000000000' does not exist."
     } == exception_info.value.args[0]
-
-
-@pytest.mark.asyncio
-async def test_add_intercept_returns_intercept_id(websocket):
-    result = await execute_command(
-        websocket, {
-            "method": "network.addIntercept",
-            "params": {
-                "phases": ["beforeRequestSent"],
-                "urlPatterns": ["https://www.example.com/*"],
-            },
-        })
-
-    assert result == {
-        "intercept": ANY_UUID,
-    }
