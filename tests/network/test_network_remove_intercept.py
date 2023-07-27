@@ -17,6 +17,28 @@ from test_helpers import execute_command
 
 
 @pytest.mark.asyncio
+async def test_remove_intercept(websocket):
+    result = await execute_command(
+        websocket, {
+            "method": "network.addIntercept",
+            "params": {
+                "phases": ["beforeRequestSent"],
+                "urlPatterns": ["https://www.example.com/*"],
+            },
+        })
+    intercept_id = result["intercept"]
+
+    result = await execute_command(
+        websocket, {
+            "method": "network.removeIntercept",
+            "params": {
+                "intercept": intercept_id,
+            },
+        })
+    assert result == {}
+
+
+@pytest.mark.asyncio
 async def test_remove_intercept_no_such_intercept(websocket):
     with pytest.raises(Exception) as exception_info:
         await execute_command(
